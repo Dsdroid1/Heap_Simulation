@@ -159,6 +159,7 @@ char * Allot(int size,Heap H,Free_list **pflptr,Allot_list **palptr)//To add mal
         {
             i++;
         }*/
+        //The following binary search is wrong....doesnt work correctly eg serach for 4(edit:Boundary condition added)
         while(lo<=hi&&fib_found==0)//Binary Search
         {
             mid=(lo+hi)/2;
@@ -179,6 +180,14 @@ char * Allot(int size,Heap H,Free_list **pflptr,Allot_list **palptr)//To add mal
         if(fib_found==1)
         {
             i=fib_pos;
+        }
+        else if(mid==MAX_FIB_POS-1&&size<Fib[mid])//when whole heap is to be alloted as closest fibo.
+        {
+            i=mid;
+        }
+        else if(size<Fib[mid])
+        {
+            i=mid;
         }
         else
         {
@@ -205,7 +214,7 @@ char * Allot(int size,Heap H,Free_list **pflptr,Allot_list **palptr)//To add mal
         {
             //Error,cant give memory,contiguous memory not available
             retptr=NULL;
-            printf("ERROR....Insufficient Storage");
+            printf("\nERROR....Insufficient Storage\n");
         }
         else
         {
@@ -245,7 +254,7 @@ char * Allot(int size,Heap H,Free_list **pflptr,Allot_list **palptr)//To add mal
     }
     else
     {
-        printf("Requested memory is too less to keep track of!!(Not Alloted)");
+        printf("\nRequested memory is too less to keep track of!!(Not Alloted)\n");
         //if still want to give ,call retptr=Allot(Fib[get_index_of_fib(size)+1],H,pflptr,palptr);
         retptr=NULL;
     }
@@ -261,7 +270,7 @@ void print_list_status(Free_list *flptr,Allot_list *alptr)
     printf("\n------------Status of Free list(s)-----------------");
     if(flptr==NULL)
     {
-        printf("\nEMPTY");
+        printf("\nEMPTY!!\n");
     }
     while(flptr!=NULL)
     {
@@ -279,7 +288,7 @@ void print_list_status(Free_list *flptr,Allot_list *alptr)
     printf("\n------------Status of Allot List-------------------\n");
     if(alptr==NULL)
     {
-        printf("EMPTY!!");
+        printf("EMPTY!!\n");
     }
     while(alptr!=NULL)
     {
@@ -679,16 +688,23 @@ void main()
     FreeUp(&flptr,&alptr,a);
     print_list_status(flptr,alptr);
     */
-    c=Allot(17,H,&flptr,&alptr);
-    d=Allot(3,H,&flptr,&alptr);
-    print_list_status(flptr,alptr);
-    FreeUp(&flptr,&alptr,d);
-    print_list_status(flptr,alptr);
+    //c=Allot(17,H,&flptr,&alptr);
+    //d=Allot(14,H,&flptr,&alptr);
+    a=Allot(7,H,&flptr,&alptr);
+    c=Allot(2,H,&flptr,&alptr);
+    s=Allot(2,H,&flptr,&alptr);
+    //print_list_status(flptr,alptr);
+    FreeUp(&flptr,&alptr,a);
+    FreeUp(&flptr,&alptr,s);
     FreeUp(&flptr,&alptr,c);
     print_list_status(flptr,alptr);
-    c=Allot(3,H,&flptr,&alptr);
+    //print_list_status(flptr,alptr);
+    //a=Allot(9,H,&flptr,&alptr);
     //FreeUp(&flptr,&alptr,c);
-    print_list_status(flptr,alptr);
+    //print_list_status(flptr,alptr);
+    //c=Allot(1,H,&flptr,&alptr);
+    //FreeUp(&flptr,&alptr,c);
+    //print_list_status(flptr,alptr);
     //s=Allot(3,H,&flptr,&alptr);
     //a=Allot(3,H,&flptr,&alptr);
     //b=Allot(3,H,&flptr,&alptr);
