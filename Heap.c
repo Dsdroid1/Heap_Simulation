@@ -213,7 +213,7 @@ void print_list_status(Free_list *flptr,Allot_list *alptr)
 {
     Heap_Node *ptr;
     //Allot_list *al;
-    printf("\n------------Status of free list(s)-----------------");
+    printf("\n------------Status of Free list(s)-----------------");
     if(flptr==NULL)
     {
         printf("\nEMPTY");
@@ -267,6 +267,7 @@ void Merge(Free_list **pflptr,Heap_Node **ph,int fib_pos,Allot_list *alptr)//ret
     else{
     if(fib_pos<MAX_FIB_POS-1&&tptr!=NULL)
     {
+        prev=NULL;
         while(tptr->down!=NULL&&tptr->size<Fib[fib_pos+1])
         {
             prev=tptr;
@@ -370,6 +371,7 @@ void Merge(Free_list **pflptr,Heap_Node **ph,int fib_pos,Allot_list *alptr)//ret
         if(done==0)//for smaller buddy
         {
             tptr=flptr;
+            prev=NULL;
             while(tptr->down!=NULL&&tptr->size<Fib[fib_pos-1])
             {
                 prev=tptr;
@@ -491,6 +493,7 @@ void Merge(Free_list **pflptr,Heap_Node **ph,int fib_pos,Allot_list *alptr)//ret
             tmp=(Free_list *)malloc(sizeof(Free_list));
             tmp->size=Fib[fib_pos];
             tmp->next=*ph;
+            tmp->down=NULL;
             tptr->down=tmp;
             if(prev!=NULL)
             {
@@ -593,13 +596,13 @@ void main()
     FreeUp(&flptr,&alptr,c);
     print_list_status(flptr,alptr);
     */
-    s=Allot(4,H,&flptr,&alptr);
+    s=Allot(3,H,&flptr,&alptr);
     a=Allot(4,H,&flptr,&alptr);
     d=Allot(3,H,&flptr,&alptr);
     print_list_status(flptr,alptr);
+    //FreeUp(&flptr,&alptr,d);
     FreeUp(&flptr,&alptr,d);
-    FreeUp(&flptr,&alptr,s);
-    //FreeUp(&flptr,&alptr,a);
+    FreeUp(&flptr,&alptr,a);
     print_list_status(flptr,alptr);
     
     //s=Allot(3,H,&flptr,&alptr);
