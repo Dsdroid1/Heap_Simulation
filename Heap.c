@@ -273,300 +273,301 @@ void Merge(Free_list **pflptr,Heap_Node **ph,int fib_pos,Allot_list *alptr)//ret
         flptr=tmp;
         *pflptr=flptr;
     }
-    else{
-    if(fib_pos<MAX_FIB_POS-1&&tptr!=NULL)
+    else
     {
-        prev=NULL;
-        while(tptr->down!=NULL&&tptr->size<Fib[fib_pos+1])
+        if(fib_pos<MAX_FIB_POS-1&&tptr!=NULL)
         {
-            prev=tptr;
-            tptr=tptr->down;
+            prev=NULL;
+            while(tptr->down!=NULL&&tptr->size<Fib[fib_pos+1])
+            {
+                prev=tptr;
+                tptr=tptr->down;
+            }
+            if(tptr->size==Fib[fib_pos+1])
+            {
+                //merging maybe possible if contiguous blocks are available
+                theap=tptr->next;
+                theap_prev=NULL;
+                while(theap!=NULL&&done==0)
+                {
+                    if(theap->start==h->start+Fib[fib_pos]*sizeof(char))//Merge possible
+                    {
+                        done=1;//rather found
+                        new=(Heap_Node *)malloc(sizeof(Heap_Node));
+                        new->start=h->start;
+                        new->next=NULL;
+                        //delete theap
+                        if(theap_prev!=NULL)
+                        {
+                            theap_prev->next=theap->next;
+                            free(theap);
+                        }
+                        else
+                        {
+                            if(theap->next==NULL)//Delete tptr as well
+                            {
+                                if(prev!=NULL)
+                                {
+                                    prev->down=tptr->down;
+                                    free(theap);
+                                    free(tptr);
+                                }
+                                else
+                                {
+                                    flptr=tptr->down;
+                                    free(tptr);
+                                    free(theap);
+                                }
+                            }   
+                            else
+                            {
+                                tptr->next=theap->next;
+                                free(theap);
+                            }
+                        }
+                        //insert into the freelist
+                    }
+                    else if(theap->start+Fib[fib_pos]*sizeof(char)==h->start)//Merge possible
+                    {
+                        done=1;//rather found
+                        new=(Heap_Node *)malloc(sizeof(Heap_Node));
+                        new->start=theap->start;
+                        new->next=NULL;
+                        //delete theap
+                        if(theap_prev!=NULL)
+                        {
+                            theap_prev->next=theap->next;
+                            free(theap);
+                        }
+                        else
+                        {
+                            if(theap->next==NULL)//Delete tptr as well
+                            {
+                                if(prev!=NULL)
+                                {
+                                    prev->down=tptr->down;
+                                    free(theap);
+                                    free(tptr);
+                                }
+                                else
+                                {
+                                    flptr=tptr->down;
+                                    free(tptr);
+                                    free(theap);
+                                }
+                            }   
+                            else
+                            {
+                                tptr->next=theap->next;
+                                free(theap);
+                            }
+                        }
+                        //insert into the freelist
+                    }
+                    if(done==0)
+                    {
+                        theap_prev=theap;
+                        theap=theap->next;
+                    }
+                }
+                if(done==1)
+                {
+                    *pflptr=flptr;
+                    free(*ph);
+                    *ph=new;
+                    Merge(pflptr,ph,fib_pos+2,alptr);
+                }
+            }   
+            if(done==0)//for smaller buddy
+            {
+                tptr=flptr;
+                prev=NULL;
+                while(tptr->down!=NULL&&tptr->size<Fib[fib_pos-1])
+                {
+                    prev=tptr;
+                    tptr=tptr->down;
+                }
+                if(tptr->size==Fib[fib_pos-1])
+                {
+                    //merging maybe possible if contiguous blocks are available
+                    theap=tptr->next;
+                    theap_prev=NULL;
+                    while(theap!=NULL&&done==0)
+                    {
+                        if(theap->start==h->start+Fib[fib_pos]*sizeof(char))//Merge possible
+                        {
+                            done=1;//rather found
+                            new=(Heap_Node *)malloc(sizeof(Heap_Node));
+                            new->start=h->start;
+                            new->next=NULL;
+                            //delete theap
+                            if(theap_prev!=NULL)
+                            {
+                                theap_prev->next=theap->next;
+                                free(theap);
+                            }
+                            else    
+                            {
+                                if(theap->next==NULL)//Delete tptr as well
+                                {
+                                    if(prev!=NULL)
+                                    {
+                                        prev->down=tptr->down;
+                                        free(theap);
+                                        free(tptr);
+                                    }
+                                    else
+                                    {
+                                        flptr=tptr->down;
+                                        free(tptr);
+                                        free(theap);
+                                    }
+                                }
+                                else
+                                {
+                                    tptr->next=theap->next;
+                                    free(theap);
+                                }
+                            }
+                            //insert into the freelist
+                        }
+                        else if(theap->start+Fib[fib_pos-1]*sizeof(char)==h->start)//Merge possible
+                        {
+                            done=1;//rather found
+                            new=(Heap_Node *)malloc(sizeof(Heap_Node));
+                            new->start=theap->start;
+                            new->next=NULL;
+                            //delete theap
+                            if(theap_prev!=NULL)
+                            {
+                                theap_prev->next=theap->next;
+                                free(theap);
+                            }
+                            else
+                            {
+                                if(theap->next==NULL)//Delete tptr as well
+                                {
+                                    if(prev!=NULL)
+                                    {
+                                        prev->down=tptr->down;
+                                        free(theap);
+                                        free(tptr);
+                                    }
+                                    else
+                                    {
+                                        flptr=tptr->down;
+                                        free(tptr);
+                                        free(theap);
+                                    }
+                                }
+                                else
+                                {
+                                    tptr->next=theap->next;
+                                    free(theap);
+                                }
+                            }
+                            //insert into the freelist
+                        }
+                        if(done==0)
+                        {
+                            theap_prev=theap;
+                            theap=theap->next;
+                        }
+                    }
+                    if(done==1)
+                    {
+                        *pflptr=flptr;
+                        free(*ph);
+                        *ph=new;
+                        //print_list_status(flptr,alptr);
+                        Merge(pflptr,ph,fib_pos+1,alptr);
+                    }
+                }
+            }   
+            if(done==0)//no further merge possible
+            {
+                tptr=flptr;
+                prev=NULL;
+                while(tptr->down!=NULL&&tptr->size<Fib[fib_pos])
+                {
+                    prev=tptr;
+                    tptr=tptr->down;
+                }
+                if(tptr->size==Fib[fib_pos])
+                {
+                    (*ph)->next=tptr->next;
+                    tptr->next=*ph;
+                }
+                else 
+                {
+                    tmp=(Free_list *)malloc(sizeof(Free_list));
+                    tmp->size=Fib[fib_pos];
+                    tmp->next=*ph;
+                    tmp->down=NULL;
+                    if(tmp->size<tptr->size)
+                    {
+                        if(prev!=NULL)
+                        {
+                            tmp->down=tptr;
+                            prev->down=tmp;
+                        }
+                        else
+                        {
+                            tmp->down=tptr;
+                            flptr=tmp;
+                            *pflptr=flptr;
+                        }
+                    }
+                    else
+                    {
+                        tptr->down=tmp;//tmp can be previous to tptr
+                        if(prev!=NULL)
+                        {
+                            tmp->down=prev->down;
+                            prev->down=tmp;
+                        }
+                    }
+                }
+            }
         }
-        if(tptr->size==Fib[fib_pos+1])
-        {
-            //merging maybe possible if contiguous blocks are available
-            theap=tptr->next;
-            theap_prev=NULL;
-            while(theap!=NULL&&done==0)
-            {
-                if(theap->start==h->start+Fib[fib_pos]*sizeof(char))//Merge possible
-                {
-                    done=1;//rather found
-                    new=(Heap_Node *)malloc(sizeof(Heap_Node));
-                    new->start=h->start;
-                    new->next=NULL;
-                    //delete theap
-                    if(theap_prev!=NULL)
-                    {
-                        theap_prev->next=theap->next;
-                        free(theap);
-                    }
-                    else
-                    {
-                        if(theap->next==NULL)//Delete tptr as well
-                        {
-                            if(prev!=NULL)
-                            {
-                                prev->down=tptr->down;
-                                free(theap);
-                                free(tptr);
-                            }
-                            else
-                            {
-                                flptr=tptr->down;
-                                free(tptr);
-                                free(theap);
-                            }
-                        }
-                        else
-                        {
-                            tptr->next=theap->next;
-                            free(theap);
-                        }
-                    }
-                    //insert into the freelist
-                }
-                else if(theap->start+Fib[fib_pos]*sizeof(char)==h->start)//Merge possible
-                {
-                    done=1;//rather found
-                    new=(Heap_Node *)malloc(sizeof(Heap_Node));
-                    new->start=theap->start;
-                    new->next=NULL;
-                    //delete theap
-                    if(theap_prev!=NULL)
-                    {
-                        theap_prev->next=theap->next;
-                        free(theap);
-                    }
-                    else
-                    {
-                        if(theap->next==NULL)//Delete tptr as well
-                        {
-                            if(prev!=NULL)
-                            {
-                                prev->down=tptr->down;
-                                free(theap);
-                                free(tptr);
-                            }
-                            else
-                            {
-                                flptr=tptr->down;
-                                free(tptr);
-                                free(theap);
-                            }
-                        }
-                        else
-                        {
-                            tptr->next=theap->next;
-                            free(theap);
-                        }
-                    }
-                    //insert into the freelist
-                }
-                if(done==0)
-                {
-                    theap_prev=theap;
-                    theap=theap->next;
-                }
-            }
-            if(done==1)
-            {
-                *pflptr=flptr;
-                free(*ph);
-                *ph=new;
-                Merge(pflptr,ph,fib_pos+2,alptr);
-            }
-        }   
-        if(done==0)//for smaller buddy
+        if(fib_pos==MAX_FIB_POS-1)//if flptr==NULL?
         {
             tptr=flptr;
             prev=NULL;
-            while(tptr->down!=NULL&&tptr->size<Fib[fib_pos-1])
+           /*if(tptr!=NULL)
             {
-                prev=tptr;
-                tptr=tptr->down;
-            }
-            if(tptr->size==Fib[fib_pos-1])
-            {
-                //merging maybe possible if contiguous blocks are available
-            theap=tptr->next;
-            theap_prev=NULL;
-            while(theap!=NULL&&done==0)
-            {
-                if(theap->start==h->start+Fib[fib_pos]*sizeof(char))//Merge possible
+                while(tptr->down!=NULL&&tptr->size<Fib[fib_pos])
                 {
-                    done=1;//rather found
-                    new=(Heap_Node *)malloc(sizeof(Heap_Node));
-                    new->start=h->start;
-                    new->next=NULL;
-                    //delete theap
-                    if(theap_prev!=NULL)
-                    {
-                        theap_prev->next=theap->next;
-                        free(theap);
-                    }
-                    else
-                    {
-                        if(theap->next==NULL)//Delete tptr as well
-                        {
-                            if(prev!=NULL)
-                            {
-                                prev->down=tptr->down;
-                                free(theap);
-                                free(tptr);
-                            }
-                            else
-                            {
-                                flptr=tptr->down;
-                                free(tptr);
-                                free(theap);
-                            }
-                        }
-                        else
-                        {
-                            tptr->next=theap->next;
-                            free(theap);
-                        }
-                    }
-                    //insert into the freelist
+                    prev=tptr;
+                    tptr=tptr->down;
                 }
-                else if(theap->start+Fib[fib_pos-1]*sizeof(char)==h->start)//Merge possible
+                if(tptr->size==Fib[fib_pos])
                 {
-                    done=1;//rather found
-                    new=(Heap_Node *)malloc(sizeof(Heap_Node));
-                    new->start=theap->start;
-                    new->next=NULL;
-                    //delete theap
-                    if(theap_prev!=NULL)
-                    {
-                        theap_prev->next=theap->next;
-                        free(theap);
-                    }
-                    else
-                    {
-                        if(theap->next==NULL)//Delete tptr as well
-                        {
-                            if(prev!=NULL)
-                            {
-                                prev->down=tptr->down;
-                                free(theap);
-                                free(tptr);
-                            }
-                            else
-                            {
-                                flptr=tptr->down;
-                                free(tptr);
-                                free(theap);
-                            }
-                        }
-                        else
-                        {
-                            tptr->next=theap->next;
-                            free(theap);
-                        }
-                    }
-                    //insert into the freelist
-                }
-                if(done==0)
-                {
-                    theap_prev=theap;
-                    theap=theap->next;
-                }
-            }
-            if(done==1)
-            {
-                *pflptr=flptr;
-                free(*ph);
-                *ph=new;
-                //print_list_status(flptr,alptr);
-                Merge(pflptr,ph,fib_pos+1,alptr);
-            }
-        }
-    }   
-    if(done==0)//no further merge possible
-    {
-        tptr=flptr;
-        prev=NULL;
-        while(tptr->down!=NULL&&tptr->size<Fib[fib_pos])
-        {
-            prev=tptr;
-            tptr=tptr->down;
-        }
-        if(tptr->size==Fib[fib_pos])
-        {
-            (*ph)->next=tptr->next;
-            tptr->next=*ph;
-        }
-        else 
-        {
-            tmp=(Free_list *)malloc(sizeof(Free_list));
-            tmp->size=Fib[fib_pos];
-            tmp->next=*ph;
-            tmp->down=NULL;
-            if(tmp->size<tptr->size)
-            {
-                if(prev!=NULL)
-                {
-                    tmp->down=tptr;
-                    prev->down=tmp;
+                    (*ph)->next=tptr->next;
+                    tptr->next=*ph;
                 }
                 else
                 {
-                    tmp->down=tptr;
-                    flptr=tmp;
-                    *pflptr=flptr;
+                    tmp=(Free_list *)malloc(sizeof(Free_list));
+                    tmp->size=Fib[fib_pos];
+                    tmp->next=*ph;
+                    //tptr->down=tmp;
+                    if(prev!=NULL)
+                    {
+                        tmp->down=prev->down;
+                        prev->down=tmp;
+                    }
                 }
-            }
-            else
-            {
-                tptr->down=tmp;//tmp can be previous to tptr
-                if(prev!=NULL)
-                {
-                    tmp->down=prev->down;
-                    prev->down=tmp;
-                }
-            }
-        }
-    }
-  }
-  if(fib_pos==MAX_FIB_POS-1)//if flptr==NULL?
-  {
-      tptr=flptr;
-        prev=NULL;
-        if(tptr!=NULL)
-        {
-            while(tptr->down!=NULL&&tptr->size<Fib[fib_pos])
-            {
-                prev=tptr;
-                tptr=tptr->down;
-            }
-            if(tptr->size==Fib[fib_pos])
-            {
-                (*ph)->next=tptr->next;
-                tptr->next=*ph;
-            }
-            else
-            {
-                tmp=(Free_list *)malloc(sizeof(Free_list));
-                tmp->size=Fib[fib_pos];
-                tmp->next=*ph;
-                //tptr->down=tmp;
-                if(prev!=NULL)
-                {
-                    tmp->down=prev->down;
-                    prev->down=tmp;
-                }
-            }
-        }
-        else
-        {
+            }*/
+            //else
+            //{
             tmp=(Free_list *)malloc(sizeof(Free_list));
             tmp->size=Fib[fib_pos];
             tmp->next=*ph;
             flptr=tmp;
             *pflptr=flptr;
+            //}
         }
-  }
     }
 }
 
@@ -635,7 +636,12 @@ void main()
     FreeUp(&flptr,&alptr,a);
     print_list_status(flptr,alptr);
     */
-    c=Allot(14,H,&flptr,&alptr);
+    c=Allot(7,H,&flptr,&alptr);
+    d=Allot(3,H,&flptr,&alptr);
+    print_list_status(flptr,alptr);
+    FreeUp(&flptr,&alptr,d);
+    print_list_status(flptr,alptr);
+    FreeUp(&flptr,&alptr,c);
     print_list_status(flptr,alptr);
     //s=Allot(3,H,&flptr,&alptr);
     //a=Allot(3,H,&flptr,&alptr);
