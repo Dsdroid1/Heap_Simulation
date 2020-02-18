@@ -599,7 +599,7 @@ void main()
     print_list_status(flptr,alptr);
     FreeUp(&flptr,&alptr,d);
     FreeUp(&flptr,&alptr,s);
-    FreeUp(&flptr,&alptr,a);
+    //FreeUp(&flptr,&alptr,a);
     print_list_status(flptr,alptr);
     
     //s=Allot(3,H,&flptr,&alptr);
