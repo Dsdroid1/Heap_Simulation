@@ -147,24 +147,51 @@ char * Allot(int size,Heap H,Free_list **pflptr,Allot_list **palptr)//To add mal
     Allot_list *alnode,*alptr;
     Heap_Node *hptr;
     char *retptr=NULL;
-    int allot,buddy;
+    int allot,buddy,lo,hi,mid,fib_found=0;
     flptr=*pflptr;
     alptr=*palptr;
     int i=0,fib_pos;
-    if(size>1)
+    lo=0;
+    hi=MAX_FIB_POS-1;
+    if(size>1)//Can be set to a threshold
     {
-        while(Fib[i]<size&&i<MAX_FIB_POS)
+        /*while(Fib[i]<size&&i<MAX_FIB_POS)//Repalce by Binary search
         {
             i++;
-        }
-        if(i<MAX_FIB_POS)
+        }*/
+        while(lo<=hi&&fib_found==0)//Binary Search
         {
-            allot=Fib[i];//checks required for i>MAX_FIB_POS and when fragmentation makes call fail...
-            buddy=Fib[i-1];
+            mid=(lo+hi)/2;
+            if(Fib[mid]==size)
+            {
+                fib_pos=mid;
+                fib_found=1;
+            }
+            else if(Fib[mid]>size)
+            {
+                hi=mid-1;
+            }
+            else
+            {
+                lo=mid+1;
+            }
+        }
+        if(fib_found==1)
+        {
+            i=fib_pos;
         }
         else
         {
+            i=mid+1;
+        }
+        if(i==MAX_FIB_POS)
+        {
             allot=Fib[MAX_FIB_POS-1]+1;//Will never be available
+        }
+        else
+        {
+            allot=Fib[i];//checks required for i>MAX_FIB_POS and when fragmentation makes call fail...
+            buddy=Fib[i-1];     
         }
         ptr=flptr;
         prev=NULL;
@@ -591,27 +618,34 @@ void FreeUp(Free_list **pflptr,Allot_list **palptr,char *ptr)
     alptr=*palptr;
     flptr=*pflptr;
     alnode=alptr;
-    while(alnode!=NULL&&alnode->start!=ptr)
+    if(ptr!=NULL)
     {
-        aprev=alnode;
-        alnode=alnode->next;
-    }
-    tmp=alnode;
-    size=tmp->size;
-    if(aprev!=NULL)
-    {
-        aprev->next=tmp->next;
+        while(alnode!=NULL&&alnode->start!=ptr)
+        {
+            aprev=alnode;
+            alnode=alnode->next;
+        }
+        tmp=alnode;
+        size=tmp->size;
+        if(aprev!=NULL)
+        {
+            aprev->next=tmp->next;
+        }
+        else
+        {
+            alptr=tmp->next;
+        }
+        free(tmp);
+        h->start=ptr;
+        h->next=NULL;
+        fib_pos=get_index_of_fib(size);
+        Merge(pflptr,&h,fib_pos,alptr);
+        *palptr=alptr;
     }
     else
     {
-        alptr=tmp->next;
+        printf("Invalid Address!");
     }
-    free(tmp);
-    h->start=ptr;
-    h->next=NULL;
-    fib_pos=get_index_of_fib(size);
-    Merge(pflptr,&h,fib_pos,alptr);
-    *palptr=alptr;
 }
 
 void main()
@@ -645,14 +679,14 @@ void main()
     FreeUp(&flptr,&alptr,a);
     print_list_status(flptr,alptr);
     */
-    c=Allot(7,H,&flptr,&alptr);
+    c=Allot(17,H,&flptr,&alptr);
     d=Allot(3,H,&flptr,&alptr);
     print_list_status(flptr,alptr);
     FreeUp(&flptr,&alptr,d);
     print_list_status(flptr,alptr);
     FreeUp(&flptr,&alptr,c);
     print_list_status(flptr,alptr);
-    c=Allot(1,H,&flptr,&alptr);
+    c=Allot(3,H,&flptr,&alptr);
     //FreeUp(&flptr,&alptr,c);
     print_list_status(flptr,alptr);
     //s=Allot(3,H,&flptr,&alptr);
