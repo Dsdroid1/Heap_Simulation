@@ -253,7 +253,18 @@ void Merge(Free_list **pflptr,Heap_Node **ph,int fib_pos,Allot_list *alptr)//ret
     int done=0;
     flptr=*pflptr;
     h=*ph;
+    h->next=NULL;
     tptr=flptr;
+    if(flptr==NULL)
+    {
+        tmp=(Free_list *)malloc(sizeof(Free_list));
+        tmp->down=NULL;
+        tmp->size=Fib[fib_pos];
+        tmp->next=*ph;
+        flptr=tmp;
+        *pflptr=flptr;
+    }
+    else{
     if(fib_pos<MAX_FIB_POS-1&&tptr!=NULL)
     {
         while(tptr->down!=NULL&&tptr->size<Fib[fib_pos+1])
@@ -527,6 +538,7 @@ void Merge(Free_list **pflptr,Heap_Node **ph,int fib_pos,Allot_list *alptr)//ret
             *pflptr=flptr;
         }
   }
+    }
 }
 
 void FreeUp(Free_list **pflptr,Allot_list **palptr,char *ptr)
@@ -573,18 +585,23 @@ void main()
     Generate_Fibo_Arr();
     print_list_status(flptr,alptr);
     
-    a=Allot(4,H,&flptr,&alptr);
-    c=Allot(2,H,&flptr,&alptr);
+    /*a=Allot(3,H,&flptr,&alptr);
+    //c=Allot(2,H,&flptr,&alptr);
     s=Allot(3,H,&flptr,&alptr);
     print_list_status(flptr,alptr);
     //To check and write correctly
     FreeUp(&flptr,&alptr,c);
     print_list_status(flptr,alptr);
-    
-    /*s=Allot(4,H,&flptr,&alptr);
-    FreeUp(&flptr,&alptr,s);
-    print_list_status(flptr,alptr);
     */
+    s=Allot(4,H,&flptr,&alptr);
+    a=Allot(4,H,&flptr,&alptr);
+    d=Allot(3,H,&flptr,&alptr);
+    print_list_status(flptr,alptr);
+    FreeUp(&flptr,&alptr,d);
+    FreeUp(&flptr,&alptr,s);
+    FreeUp(&flptr,&alptr,a);
+    print_list_status(flptr,alptr);
+    
     //s=Allot(3,H,&flptr,&alptr);
     //a=Allot(3,H,&flptr,&alptr);
     //b=Allot(3,H,&flptr,&alptr);
