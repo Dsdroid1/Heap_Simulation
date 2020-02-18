@@ -151,67 +151,76 @@ char * Allot(int size,Heap H,Free_list **pflptr,Allot_list **palptr)//To add mal
     flptr=*pflptr;
     alptr=*palptr;
     int i=0,fib_pos;
-    while(Fib[i]<size&&i<MAX_FIB_POS)
+    if(size>1)
     {
-        i++;
-    }
-    if(i<MAX_FIB_POS)
-    {
-        allot=Fib[i];//checks required for i>MAX_FIB_POS and when fragmentation makes call fail...
-        buddy=Fib[i-1];
-    }
-    else
-    {
-        allot=Fib[MAX_FIB_POS-1]+1;//Will never be available
-    }
-    ptr=flptr;
-    prev=NULL;
-    //Search for an existing free list of required size or a list with just greater size
-    while(ptr->size<allot&&ptr->down!=NULL)
-    {
-        prev=ptr;
-        ptr=ptr->down;
-    }
-    if(ptr->down==NULL&&ptr->size<allot)
-    {
-        //Error,cant give memory,contiguous memory not available
-        retptr=NULL;
-        printf("ERROR....Insufficient Storage");
-    }
-    else
-    {
-        if(ptr->size==allot)
+        while(Fib[i]<size&&i<MAX_FIB_POS)
         {
-           retptr=ptr->next->start;
-           hptr=ptr->next;
-           ptr->next=hptr->next;
-           free(hptr);
-           if(ptr->next==NULL)//This size of free space are now no longer available
-           {
-               if(prev!=NULL)
-               {
-                   prev->down=ptr->down;
-               }
-               else
-               {
-                   flptr=ptr->down;
-               }
-               free(ptr);
-           }
-           alnode=(Allot_list *)malloc(sizeof(Allot_list));
-           alnode->size=allot;
-           alnode->start=retptr;
-           alnode->next=alptr;//Dumping into allot list
-           alptr=alnode;
-           
+            i++;
+        }
+        if(i<MAX_FIB_POS)
+        {
+            allot=Fib[i];//checks required for i>MAX_FIB_POS and when fragmentation makes call fail...
+            buddy=Fib[i-1];
         }
         else
         {
-            fib_pos=get_index_of_fib(ptr->size)-1;
-            //Need to divide the list,iteratively
-            Divide(&flptr,&ptr,&prev,fib_pos);
-            retptr=Allot(size,H,&flptr,&alptr);
+            allot=Fib[MAX_FIB_POS-1]+1;//Will never be available
         }
+        ptr=flptr;
+        prev=NULL;
+        //Search for an existing free list of required size or a list with just greater size
+        while(ptr->size<allot&&ptr->down!=NULL)
+        {
+            prev=ptr;
+            ptr=ptr->down;
+        }
+        if(ptr->down==NULL&&ptr->size<allot)
+        {
+            //Error,cant give memory,contiguous memory not available
+            retptr=NULL;
+            printf("ERROR....Insufficient Storage");
+        }
+        else
+        {
+            if(ptr->size==allot)
+            {
+                retptr=ptr->next->start;
+                hptr=ptr->next;
+                ptr->next=hptr->next;
+                free(hptr);
+                if(ptr->next==NULL)//This size of free space are now no longer available
+                {
+                    if(prev!=NULL)
+                    {
+                        prev->down=ptr->down;
+                    }
+                    else
+                    {
+                        flptr=ptr->down;
+                    }
+                    free(ptr);
+                }
+                alnode=(Allot_list *)malloc(sizeof(Allot_list));
+                alnode->size=allot;
+                alnode->start=retptr;
+                alnode->next=alptr;//Dumping into allot list
+                alptr=alnode;
+           
+            }
+            else
+            {
+                fib_pos=get_index_of_fib(ptr->size)-1;
+                //Need to divide the list,iteratively
+                Divide(&flptr,&ptr,&prev,fib_pos);
+                retptr=Allot(size,H,&flptr,&alptr);
+            }
+        }
+    }
+    else
+    {
+        printf("Requested memory is too less to keep track of!!(Not Alloted)");
+        //if still want to give ,call retptr=Allot(Fib[get_index_of_fib(size)+1],H,pflptr,palptr);
+        retptr=NULL;
     }
     *pflptr=flptr;
     *palptr=alptr;
@@ -642,6 +651,9 @@ void main()
     FreeUp(&flptr,&alptr,d);
     print_list_status(flptr,alptr);
     FreeUp(&flptr,&alptr,c);
+    print_list_status(flptr,alptr);
+    c=Allot(1,H,&flptr,&alptr);
+    //FreeUp(&flptr,&alptr,c);
     print_list_status(flptr,alptr);
     //s=Allot(3,H,&flptr,&alptr);
     //a=Allot(3,H,&flptr,&alptr);
