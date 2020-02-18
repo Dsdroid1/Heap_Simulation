@@ -155,8 +155,15 @@ char * Allot(int size,Heap H,Free_list **pflptr,Allot_list **palptr)//To add mal
     {
         i++;
     }
-    allot=Fib[i];//checks required for i>MAX_FIB_POS and when fragmentation makes call fail...
-    buddy=Fib[i-1];
+    if(i<MAX_FIB_POS)
+    {
+        allot=Fib[i];//checks required for i>MAX_FIB_POS and when fragmentation makes call fail...
+        buddy=Fib[i-1];
+    }
+    else
+    {
+        allot=Fib[MAX_FIB_POS-1]+1;//Will never be available
+    }
     ptr=flptr;
     prev=NULL;
     //Search for an existing free list of required size or a list with just greater size
@@ -165,9 +172,11 @@ char * Allot(int size,Heap H,Free_list **pflptr,Allot_list **palptr)//To add mal
         prev=ptr;
         ptr=ptr->down;
     }
-    if(ptr->next==NULL&&ptr->size<allot)
+    if(ptr->down==NULL&&ptr->size<allot)
     {
         //Error,cant give memory,contiguous memory not available
+        retptr=NULL;
+        printf("ERROR....Insufficient Storage");
     }
     else
     {
@@ -488,17 +497,34 @@ void Merge(Free_list **pflptr,Heap_Node **ph,int fib_pos,Allot_list *alptr)//ret
             (*ph)->next=tptr->next;
             tptr->next=*ph;
         }
-        else
+        else 
         {
             tmp=(Free_list *)malloc(sizeof(Free_list));
             tmp->size=Fib[fib_pos];
             tmp->next=*ph;
             tmp->down=NULL;
-            tptr->down=tmp;
-            if(prev!=NULL)
+            if(tmp->size<tptr->size)
             {
-                tmp->down=prev->down;
-                prev->down=tmp;
+                if(prev!=NULL)
+                {
+                    tmp->down=tptr;
+                    prev->down=tmp;
+                }
+                else
+                {
+                    tmp->down=tptr;
+                    flptr=tmp;
+                    *pflptr=flptr;
+                }
+            }
+            else
+            {
+                tptr->down=tmp;//tmp can be previous to tptr
+                if(prev!=NULL)
+                {
+                    tmp->down=prev->down;
+                    prev->down=tmp;
+                }
             }
         }
     }
@@ -596,15 +622,21 @@ void main()
     FreeUp(&flptr,&alptr,c);
     print_list_status(flptr,alptr);
     */
-    s=Allot(3,H,&flptr,&alptr);
+    /*s=Allot(3,H,&flptr,&alptr);
     a=Allot(4,H,&flptr,&alptr);
     d=Allot(3,H,&flptr,&alptr);
     print_list_status(flptr,alptr);
-    //FreeUp(&flptr,&alptr,d);
+    c=Allot(3,H,&flptr,&alptr);
+    print_list_status(flptr,alptr);
+    FreeUp(&flptr,&alptr,s);
+    print_list_status(flptr,alptr);
     FreeUp(&flptr,&alptr,d);
+    print_list_status(flptr,alptr);
     FreeUp(&flptr,&alptr,a);
     print_list_status(flptr,alptr);
-    
+    */
+    c=Allot(14,H,&flptr,&alptr);
+    print_list_status(flptr,alptr);
     //s=Allot(3,H,&flptr,&alptr);
     //a=Allot(3,H,&flptr,&alptr);
     //b=Allot(3,H,&flptr,&alptr);
