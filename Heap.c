@@ -1,9 +1,9 @@
 #include<stdio.h>
 #include<stdlib.h>
 //Simulation of fibonacci heap by char array
-#define HEAP_SIZE 34//Will be a large fibonacci number
-#define MAX_FIB_POS 9//1,1,2,3,5,8,13
-#define NUM_NODES 17//(HEAP_SIZE/2)
+#define HEAP_SIZE 987//Will be a large fibonacci number
+#define MAX_FIB_POS 16//1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987
+#define NUM_NODES 987//(HEAP_SIZE)
 int Fib[MAX_FIB_POS];
 int ID[NUM_NODES];
 
@@ -170,18 +170,7 @@ char * Allot(int size,Heap H,Free_list **pflptr,Allot_list **palptr)//To add mal
         {
             i++;
         }*/
-        //The following binary search is wrong....doesnt work correctly eg serach for 4(edit:Boundary condition added)
         
-        //--------------------------------------
-        //test part
-        /*
-        if(size==2)//We will not allot any node of size 2
-        {
-        	size=3;
-        }
-        */
-        //test part
-        //--------------------------------------
         while(lo<=hi&&fib_found==0)//Binary Search
         {
             mid=(lo+hi)/2;
@@ -334,6 +323,7 @@ void print_list_status(Free_list *flptr,Allot_list *alptr)
         printf("-->Alloted Size:%d [ID:%d]",alptr->size,alptr->id);
         alptr=alptr->next;
     }
+    printf("\n---------------------------------------------------");
     printf("\n");
 
 }
@@ -410,7 +400,7 @@ void Merge(Free_list **pflptr,Heap_Node **ph,int fib_pos,Allot_list *alptr)//ret
                         }
                         //insert into the freelist
                     }
-                    else if(theap->start+Fib[fib_pos]*sizeof(char)==h->start)//Merge possible
+                    else if(theap->start+Fib[fib_pos+1]*sizeof(char)==h->start)//Merge possible
                     {
                         done=1;//rather found
                         new=(Heap_Node *)malloc(sizeof(Heap_Node));
