@@ -2,14 +2,14 @@
 #include<stdlib.h>
 //Simulation of fibonacci heap by char array
 #define HEAP_SIZE 34//Will be a large fibonacci number
-#define MAX_FIB_POS 8//1,2,3,5,8,13
+#define MAX_FIB_POS 9//1,1,2,3,5,8,13
 #define NUM_NODES 17//(HEAP_SIZE/2)
 int Fib[MAX_FIB_POS];
 int ID[NUM_NODES];
 
 void Generate_Fibo_Arr()
 {
-    int f=1,s=2;
+    int f=1,s=1;
     int i=0;
     while(i<MAX_FIB_POS)
     {
@@ -164,13 +164,24 @@ char * Allot(int size,Heap H,Free_list **pflptr,Allot_list **palptr)//To add mal
     int i=0,fib_pos;
     lo=0;
     hi=MAX_FIB_POS-1;
-    if(size>1)//Can be set to a threshold
+    if(size>0)//Can be set to a threshold
     {
         /*while(Fib[i]<size&&i<MAX_FIB_POS)//Repalce by Binary search
         {
             i++;
         }*/
         //The following binary search is wrong....doesnt work correctly eg serach for 4(edit:Boundary condition added)
+        
+        //--------------------------------------
+        //test part
+        /*
+        if(size==2)//We will not allot any node of size 2
+        {
+        	size=3;
+        }
+        */
+        //test part
+        //--------------------------------------
         while(lo<=hi&&fib_found==0)//Binary Search
         {
             mid=(lo+hi)/2;
@@ -583,12 +594,19 @@ void Merge(Free_list **pflptr,Heap_Node **ph,int fib_pos,Allot_list *alptr)//ret
                     }
                     else
                     {
+                        tmp->down=tptr->down;
                         tptr->down=tmp;//tmp can be previous to tptr
+                        //------------------------
+                        //Assumed to be buggy
+                        /*
                         if(prev!=NULL)
                         {
                             tmp->down=prev->down;
                             prev->down=tmp;
                         }
+                        */
+                       
+                        //----------------------
                     }
                 }
             }
