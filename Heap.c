@@ -1,8 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 //Simulation of fibonacci heap by char array
-#define HEAP_SIZE 13//Will be a large fibonacci number
-#define MAX_FIB_POS 6//1,2,3,5,8,13
+#define HEAP_SIZE 34//Will be a large fibonacci number
+#define MAX_FIB_POS 8//1,2,3,5,8,13
 int Fib[MAX_FIB_POS];
 
 void Generate_Fibo_Arr()
@@ -114,6 +114,7 @@ void Divide(Free_list **pflptr,Free_list **pptr,Free_list **pprev,int fib_pos)//
             node1=(Free_list *)malloc(sizeof(Free_list));
             node1->size=Fib[fib_pos-1];
             node1->next=h1;
+            node1->down=prev->down;
             prev->down=node1;
         }
     }
@@ -666,7 +667,12 @@ void main()
     Init(H,&flptr,&alptr);
     Generate_Fibo_Arr();
     print_list_status(flptr,alptr);
-    
+    a=Allot(3,H,&flptr,&alptr);
+    print_list_status(flptr,alptr);
+    c=Allot(5,H,&flptr,&alptr);
+    print_list_status(flptr,alptr);
+    FreeUp(&flptr,&alptr,c);
+    print_list_status(flptr,alptr);
     /*a=Allot(3,H,&flptr,&alptr);
     //c=Allot(2,H,&flptr,&alptr);
     s=Allot(3,H,&flptr,&alptr);
@@ -690,14 +696,16 @@ void main()
     */
     //c=Allot(17,H,&flptr,&alptr);
     //d=Allot(14,H,&flptr,&alptr);
-    a=Allot(7,H,&flptr,&alptr);
+   /* a=Allot(7,H,&flptr,&alptr);
+    print_list_status(flptr,alptr);
     c=Allot(2,H,&flptr,&alptr);
+    print_list_status(flptr,alptr);
     s=Allot(2,H,&flptr,&alptr);
-    //print_list_status(flptr,alptr);
+    print_list_status(flptr,alptr);
     FreeUp(&flptr,&alptr,a);
     FreeUp(&flptr,&alptr,s);
     FreeUp(&flptr,&alptr,c);
-    print_list_status(flptr,alptr);
+    print_list_status(flptr,alptr);*/
     //print_list_status(flptr,alptr);
     //a=Allot(9,H,&flptr,&alptr);
     //FreeUp(&flptr,&alptr,c);
