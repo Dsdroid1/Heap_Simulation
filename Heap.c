@@ -3,7 +3,9 @@
 //Simulation of fibonacci heap by char array
 #define HEAP_SIZE 34//Will be a large fibonacci number
 #define MAX_FIB_POS 8//1,2,3,5,8,13
+#define NUM_NODES 17//(HEAP_SIZE/2)
 int Fib[MAX_FIB_POS];
+int ID[NUM_NODES];
 
 void Generate_Fibo_Arr()
 {
@@ -36,6 +38,7 @@ typedef struct Allot_tag
 {
     char *start;
     struct Allot_tag *next;
+    int id;
     int size;
 }Allot_list;
 
@@ -62,6 +65,7 @@ void print_list_status(Free_list *flptr,Allot_list *alptr);
 void Init(Heap H,Free_list **flptr,Allot_list **alptr)
 {
     Heap_Node *h;
+    int i;
     h=(Heap_Node *)malloc(sizeof(Heap_Node));
     *flptr=(Free_list *)malloc(sizeof(Free_list));
     h->start=&H.heap_space[0];
@@ -69,7 +73,12 @@ void Init(Heap H,Free_list **flptr,Allot_list **alptr)
     (*flptr)->size=HEAP_SIZE;
     (*flptr)->next=h;
     (*flptr)->down=NULL;
-    *alptr=NULL;//nothing alloted yet
+    *alptr=NULL;
+    for(i=0;i<NUM_NODES;i++)
+    {
+        ID[i]=0;//No id alloted
+    }
+    //nothing alloted yet
     //print_list_status(flptr,alptr);
 }
 
@@ -149,6 +158,7 @@ char * Allot(int size,Heap H,Free_list **pflptr,Allot_list **palptr)//To add mal
     Heap_Node *hptr;
     char *retptr=NULL;
     int allot,buddy,lo,hi,mid,fib_found=0;
+    int j=0;
     flptr=*pflptr;
     alptr=*palptr;
     int i=0,fib_pos;
@@ -240,6 +250,13 @@ char * Allot(int size,Heap H,Free_list **pflptr,Allot_list **palptr)//To add mal
                 alnode=(Allot_list *)malloc(sizeof(Allot_list));
                 alnode->size=allot;
                 alnode->start=retptr;
+                j=0;
+                while(ID[j]==1&&j<NUM_NODES)
+                {
+                    j++;
+                }
+                alnode->id=j;
+                ID[j]=1;
                 alnode->next=alptr;//Dumping into allot list
                 alptr=alnode;
            
@@ -294,7 +311,7 @@ void print_list_status(Free_list *flptr,Allot_list *alptr)
     while(alptr!=NULL)
     {
 
-        printf("-->Alloted Size:%d",alptr->size);
+        printf("-->Alloted Size:%d [ID:%d]",alptr->size,alptr->id);
         alptr=alptr->next;
     }
     printf("\n");
@@ -580,33 +597,6 @@ void Merge(Free_list **pflptr,Heap_Node **ph,int fib_pos,Allot_list *alptr)//ret
         {
             tptr=flptr;
             prev=NULL;
-           /*if(tptr!=NULL)
-            {
-                while(tptr->down!=NULL&&tptr->size<Fib[fib_pos])
-                {
-                    prev=tptr;
-                    tptr=tptr->down;
-                }
-                if(tptr->size==Fib[fib_pos])
-                {
-                    (*ph)->next=tptr->next;
-                    tptr->next=*ph;
-                }
-                else
-                {
-                    tmp=(Free_list *)malloc(sizeof(Free_list));
-                    tmp->size=Fib[fib_pos];
-                    tmp->next=*ph;
-                    //tptr->down=tmp;
-                    if(prev!=NULL)
-                    {
-                        tmp->down=prev->down;
-                        prev->down=tmp;
-                    }
-                }
-            }*/
-            //else
-            //{
             tmp=(Free_list *)malloc(sizeof(Free_list));
             tmp->size=Fib[fib_pos];
             tmp->next=*ph;
@@ -658,21 +648,83 @@ void FreeUp(Free_list **pflptr,Allot_list **palptr,char *ptr)
     }
 }
 
+void FreeByID(Free_list **pflptr,Allot_list **palptr,int id)
+{
+    int i=0;
+    Allot_list *alptr;
+    alptr=*palptr;
+    if(id>=0&&id<NUM_NODES)
+    {
+        if(ID[id]==1)
+        {
+            while(alptr->id!=id)
+            {
+                alptr=alptr->next;
+            }
+            
+            FreeUp(pflptr,palptr,alptr->start);
+            ID[id]=0;
+        }
+        else
+        {
+            printf("\nInvalid ID for deletion!");
+        }
+    }
+}   
+
 void main()
 {
     Heap H;
+    int code=0,flag=0,size=0,id=0;
     Free_list *flptr=NULL;
     Allot_list *alptr=NULL;
-    char *s,*a,*b,*c,*d;
+    //char *s,*a,*b,*c,*d;
     Init(H,&flptr,&alptr);
     Generate_Fibo_Arr();
     print_list_status(flptr,alptr);
+
+    while(flag==0)
+    {
+        
+        printf("\n1.Allot from Heap");
+        printf("\n2.Free an alloted space");
+        printf("\n  Anything Else to exit:");
+        printf("\nWhat Do You Want To Do:");
+       
+        scanf("%d",&code);
+        switch(code)
+        {
+            case 1:
+                    printf("\nWhat size do you want?");
+                    scanf("%d",&size);
+                    Allot(size,H,&flptr,&alptr);
+                    print_list_status(flptr,alptr);
+                    break;
+
+            case 2:
+                    printf("\nWhich ID block do you want to delete?");
+                    scanf("%d",&id);
+                    FreeByID(&flptr,&alptr,id);
+                    print_list_status(flptr,alptr);
+                    break;
+
+            default:
+                    flag=1;
+        }
+    }
+    
+    
+    
+    
+    /*
     a=Allot(3,H,&flptr,&alptr);
     print_list_status(flptr,alptr);
     c=Allot(5,H,&flptr,&alptr);
     print_list_status(flptr,alptr);
-    FreeUp(&flptr,&alptr,c);
+    //FreeUp(&flptr,&alptr,c);
+    FreeByID(&flptr,&alptr,0);
     print_list_status(flptr,alptr);
+    */
     /*a=Allot(3,H,&flptr,&alptr);
     //c=Allot(2,H,&flptr,&alptr);
     s=Allot(3,H,&flptr,&alptr);
