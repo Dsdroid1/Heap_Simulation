@@ -624,7 +624,7 @@ void Merge(Free_list **pflptr,Heap_Node **ph,int fib_pos,Allot_list *alptr)//ret
     }
 }
 
-void FreeUp(Free_list **pflptr,Allot_list **palptr,char *ptr)
+void FreeUp(Free_list **pflptr,Allot_list **palptr,char *ptr,Heap H)
 {
     //search the element in alloc list
     Free_list *flptr,*tptr;
@@ -653,15 +653,22 @@ void FreeUp(Free_list **pflptr,Allot_list **palptr,char *ptr)
             alptr=tmp->next;
         }
         free(tmp);
-        h->start=ptr;
-        h->next=NULL;
-        fib_pos=get_index_of_fib(size);
-        if(Fib[fib_pos]==1)
+        if(alptr!=NULL)
         {
-            fib_pos++;//to make this as the second one of fibo...
+            h->start=ptr;
+            h->next=NULL;
+            fib_pos=get_index_of_fib(size);
+            if(Fib[fib_pos]==1)//for linear serach
+            {
+                fib_pos=1;//to make this as the second one of fibo...
+            }
+            Merge(pflptr,&h,fib_pos,alptr);
+            *palptr=alptr;
         }
-        Merge(pflptr,&h,fib_pos,alptr);
-        *palptr=alptr;
+        else
+        {
+            Init(H,pflptr,palptr);
+        }
     }
     else
     {
@@ -669,10 +676,11 @@ void FreeUp(Free_list **pflptr,Allot_list **palptr,char *ptr)
     }
 }
 
-void FreeByID(Free_list **pflptr,Allot_list **palptr,int id)
+void FreeByID(Free_list **pflptr,Allot_list **palptr,int id,Heap H)
 {
     int i=0;
     Allot_list *alptr;
+    
     alptr=*palptr;
     if(id>=0&&id<NUM_NODES)
     {
@@ -683,7 +691,7 @@ void FreeByID(Free_list **pflptr,Allot_list **palptr,int id)
                 alptr=alptr->next;
             }
             
-            FreeUp(pflptr,palptr,alptr->start);
+            FreeUp(pflptr,palptr,alptr->start,H);
             ID[id]=0;
         }
         else
@@ -725,7 +733,7 @@ void main()
             case 2:
                     printf("\nWhich ID block do you want to delete?");
                     scanf("%d",&id);
-                    FreeByID(&flptr,&alptr,id);
+                    FreeByID(&flptr,&alptr,id,H);
                     print_list_status(flptr,alptr);
                     break;
 
